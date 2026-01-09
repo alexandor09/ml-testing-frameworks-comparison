@@ -1,0 +1,28 @@
+{
+  "best_framework": "alibi",
+  "details": {
+    "execution_time_sec": 0.06052422523498535,
+    "memory_peak_mb": 371.87890625,
+    "issues_detected": 2,
+    "coverage_score": 1.0,
+    "checks_performed": {
+      "data_quality": true,
+      "data_drift": true,
+      "outliers": true,
+      "model_performance": true
+    },
+    "check_values": {
+      "data_quality": 0,
+      "data_drift": "2/3",
+      "outliers": 0,
+      "model_performance": {
+        "mae": 19.64762442269479,
+        "rmse": 24.635651661697093
+      }
+    },
+    "artifacts": [
+      "alibi\\alibi_outliers.json",
+      "alibi\\alibi_drift.json"
+    ]
+  }
+}

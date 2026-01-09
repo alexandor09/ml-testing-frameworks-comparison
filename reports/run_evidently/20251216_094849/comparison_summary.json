@@ -1,0 +1,11 @@
+{
+  "evidently": {
+    "execution_time_sec": 1.8329157829284668,
+    "memory_peak_mb": 370.0078125,
+    "issues_detected": 0,
+    "coverage_score": 0.75,
+    "artifacts": [
+      "evidently\\evidently_report.html"
+    ]
+  }
+}

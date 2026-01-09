@@ -1,0 +1,11 @@
+pandas
+numpy
+prophet
+great_expectations
+evidently
+alibi-detect
+nannyml
+psutil
+plotly
+scikit-learn
+tqdm

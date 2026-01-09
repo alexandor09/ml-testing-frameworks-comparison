@@ -1,0 +1,12 @@
+{
+  "best_framework": "evidently",
+  "details": {
+    "execution_time_sec": 5.377282619476318,
+    "memory_peak_mb": 371.390625,
+    "issues_detected": 0,
+    "coverage_score": 0.75,
+    "artifacts": [
+      "evidently\\evidently_report.html"
+    ]
+  }
+}

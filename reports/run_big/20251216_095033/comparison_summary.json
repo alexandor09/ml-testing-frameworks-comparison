@@ -1,0 +1,40 @@
+{
+  "gx": {
+    "execution_time_sec": 0.20552802085876465,
+    "memory_peak_mb": 362.9296875,
+    "issues_detected": 1,
+    "coverage_score": 0.5,
+    "artifacts": [
+      "gx\\gx_validation.json"
+    ]
+  },
+  "evidently": {
+    "execution_time_sec": 1.7564232349395752,
+    "memory_peak_mb": 379.2890625,
+    "issues_detected": 0,
+    "coverage_score": 0.75,
+    "artifacts": [
+      "evidently\\evidently_report.html"
+    ]
+  },
+  "alibi": {
+    "execution_time_sec": 0.36407923698425293,
+    "memory_peak_mb": 372.92578125,
+    "issues_detected": 3711,
+    "coverage_score": 0.5,
+    "artifacts": [
+      "alibi\\alibi_outliers.json",
+      "alibi\\alibi_drift.json"
+    ]
+  },
+  "nannyml": {
+    "execution_time_sec": 0.9891488552093506,
+    "memory_peak_mb": 387.0234375,
+    "issues_detected": 6,
+    "coverage_score": 0.5,
+    "artifacts": [
+      "nannyml\\nannyml_performance.html",
+      "nannyml\\nannyml_drift.html"
+    ]
+  }
+}

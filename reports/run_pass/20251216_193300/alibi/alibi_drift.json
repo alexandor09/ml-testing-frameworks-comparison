@@ -1,0 +1,11 @@
+{
+  "drift_detected_count": 0,
+  "is_drift_per_feature": {
+    "price": 0
+  },
+  "p_values": {
+    "price": NaN,
+    "promotion": 1.0,
+    "y": NaN
+  }
+}

@@ -1,0 +1,225 @@
+{
+  "success": false,
+  "results": [
+    {
+      "success": true,
+      "expectation_config": {
+        "type": "expect_column_values_to_not_be_null",
+        "kwargs": {
+          "batch_id": "my_datasource-test_data",
+          "column": "ds"
+        },
+        "meta": {},
+        "id": "0e3b80e8-c950-4d29-aa29-2d677372824f",
+        "severity": "critical"
+      },
+      "result": {
+        "element_count": 4120,
+        "unexpected_count": 0,
+        "unexpected_percent": 0.0,
+        "partial_unexpected_list": []
+      },
+      "meta": {},
+      "exception_info": {
+        "raised_exception": false,
+        "exception_traceback": null,
+        "exception_message": null
+      }
+    },
+    {
+      "success": false,
+      "expectation_config": {
+        "type": "expect_column_values_to_not_be_null",
+        "kwargs": {
+          "batch_id": "my_datasource-test_data",
+          "column": "y"
+        },
+        "meta": {},
+        "id": "c74f3841-01d5-4a59-8af6-bd08f8dcee96",
+        "severity": "critical"
+      },
+      "result": {
+        "element_count": 4120,
+        "unexpected_count": 85,
+        "unexpected_percent": 2.063106796116505,
+        "partial_unexpected_list": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "meta": {},
+      "exception_info": {
+        "raised_exception": false,
+        "exception_traceback": null,
+        "exception_message": null
+      }
+    },
+    {
+      "success": true,
+      "expectation_config": {
+        "type": "expect_column_values_to_be_between",
+        "kwargs": {
+          "batch_id": "my_datasource-test_data",
+          "column": "y",
+          "min_value": 0.0
+        },
+        "meta": {},
+        "id": "0f6f846c-f4ff-464d-9bc1-5ee958ed36f1",
+        "severity": "critical"
+      },
+      "result": {
+        "element_count": 4120,
+        "unexpected_count": 0,
+        "unexpected_percent": 0.0,
+        "partial_unexpected_list": [],
+        "missing_count": 85,
+        "missing_percent": 2.063106796116505,
+        "unexpected_percent_total": 0.0,
+        "unexpected_percent_nonmissing": 0.0
+      },
+      "meta": {},
+      "exception_info": {
+        "raised_exception": false,
+        "exception_traceback": null,
+        "exception_message": null
+      }
+    },
+    {
+      "success": false,
+      "expectation_config": {
+        "type": "expect_column_values_to_be_between",
+        "kwargs": {
+          "batch_id": "my_datasource-test_data",
+          "column": "price",
+          "min_value": 0.0,
+          "max_value": 100.0
+        },
+        "meta": {},
+        "id": "ca1b4998-9eaa-4c64-a340-841d4228ca14",
+        "severity": "critical"
+      },
+      "result": {
+        "element_count": 4120,
+        "unexpected_count": 1953,
+        "unexpected_percent": 49.910554561717355,
+        "partial_unexpected_list": [
+          113.89039504667063,
+          113.89039504667063,
+          113.89039504667063,
+          113.89039504667063,
+          113.89039504667063,
+          113.89039504667063,
+          114.51103888904656,
+          114.51103888904656,
+          114.51103888904656,
+          114.51103888904656,
+          114.51103888904656,
+          114.51103888904656,
+          114.51103888904656,
+          111.17912715395,
+          111.17912715395,
+          111.17912715395,
+          111.17912715395,
+          111.17912715395,
+          111.17912715395,
+          107.92704591567956
+        ],
+        "missing_count": 207,
+        "missing_percent": 5.024271844660194,
+        "unexpected_percent_total": 47.40291262135922,
+        "unexpected_percent_nonmissing": 49.910554561717355
+      },
+      "meta": {},
+      "exception_info": {
+        "raised_exception": false,
+        "exception_traceback": null,
+        "exception_message": null
+      }
+    },
+    {
+      "success": true,
+      "expectation_config": {
+        "type": "expect_column_values_to_be_in_set",
+        "kwargs": {
+          "batch_id": "my_datasource-test_data",
+          "column": "promotion",
+          "value_set": [
+            0,
+            1
+          ]
+        },
+        "meta": {},
+        "id": "9d97f228-3fae-4744-8e78-c1f5cfee4cca",
+        "severity": "critical"
+      },
+      "result": {
+        "element_count": 4120,
+        "unexpected_count": 0,
+        "unexpected_percent": 0.0,
+        "partial_unexpected_list": [],
+        "missing_count": 0,
+        "missing_percent": 0.0,
+        "unexpected_percent_total": 0.0,
+        "unexpected_percent_nonmissing": 0.0
+      },
+      "meta": {},
+      "exception_info": {
+        "raised_exception": false,
+        "exception_traceback": null,
+        "exception_message": null
+      }
+    }
+  ],
+  "suite_name": "my_suite",
+  "suite_parameters": {},
+  "statistics": {
+    "evaluated_expectations": 5,
+    "successful_expectations": 3,
+    "unsuccessful_expectations": 2,
+    "success_percent": 60.0
+  },
+  "meta": {
+    "great_expectations_version": "1.9.3",
+    "expectation_suite_name": "my_suite",
+    "run_id": {
+      "run_name": null,
+      "run_time": "2025-12-16T19:53:30.704278+03:00"
+    },
+    "batch_spec": {
+      "batch_data": "PandasDataFrame"
+    },
+    "batch_markers": {
+      "ge_load_time": "20251216T165330.662721Z",
+      "pandas_data_fingerprint": "673799918e05294e55a07177b489a896"
+    },
+    "active_batch_definition": {
+      "datasource_name": "my_datasource",
+      "data_connector_name": "fluent",
+      "data_asset_name": "test_data",
+      "batch_identifiers": {
+        "dataframe": "<DATAFRAME>"
+      }
+    },
+    "validation_time": "20251216T165330.704278Z",
+    "checkpoint_name": null
+  },
+  "id": null
+}

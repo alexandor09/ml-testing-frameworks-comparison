@@ -1,0 +1,18 @@
+{
+  "total_rows": 1000,
+  "train_rows": 800,
+  "test_rows": 200,
+  "train_percent": 80.0,
+  "test_percent": 20.0,
+  "train_date_range": {
+    "start": "2023-01-01 00:00:00",
+    "end": "2025-03-10 00:00:00"
+  },
+  "test_date_range": {
+    "start": "2025-03-11 00:00:00",
+    "end": "2025-09-26 00:00:00"
+  },
+  "date_gap_days": 1,
+  "train_tail": [
+    {
+      "ds": 

@@ -1,0 +1,24 @@
+{
+  "best_framework": "gx",
+  "details": {
+    "execution_time_sec": 0.3031954765319824,
+    "memory_peak_mb": 363.5703125,
+    "issues_detected": 2,
+    "coverage_score": 1.0,
+    "checks_performed": {
+      "data_quality": true,
+      "data_drift": true,
+      "outliers": true,
+      "model_performance": true
+    },
+    "check_values": {
+      "data_quality": 2,
+      "data_drift": "2/3",
+      "outliers": 2,
+      "model_performance": null
+    },
+    "artifacts": [
+      "gx\\gx_validation.json"
+    ]
+  }
+}

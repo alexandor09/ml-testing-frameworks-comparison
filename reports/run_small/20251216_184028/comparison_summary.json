@@ -1,0 +1,64 @@
+{
+  "gx": {
+    "execution_time_sec": 0.2394542694091797,
+    "memory_peak_mb": 355.94921875,
+    "issues_detected": 1,
+    "coverage_score": 0.5,
+    "checks_performed": {
+      "data_quality": true,
+      "data_drift": false,
+      "outliers": true,
+      "model_performance": false
+    },
+    "artifacts": [
+      "gx\\gx_validation.json"
+    ]
+  },
+  "evidently": {
+    "execution_time_sec": 2.3756234645843506,
+    "memory_peak_mb": 370.89453125,
+    "issues_detected": 0,
+    "coverage_score": 0.75,
+    "checks_performed": {
+      "data_quality": true,
+      "data_drift": true,
+      "outliers": false,
+      "model_performance": true
+    },
+    "artifacts": [
+      "evidently\\evidently_report.html"
+    ]
+  },
+  "alibi": {
+    "execution_time_sec": 0.41016221046447754,
+    "memory_peak_mb": 364.5703125,
+    "issues_detected": 14,
+    "coverage_score": 0.5,
+    "checks_performed": {
+      "data_quality": false,
+      "data_drift": true,
+      "outliers": true,
+      "model_performance": false
+    },
+    "artifacts": [
+      "alibi\\alibi_outliers.json",
+      "alibi\\alibi_drift.json"
+    ]
+  },
+  "nannyml": {
+    "execution_time_sec": 2.1036696434020996,
+    "memory_peak_mb": 391.08984375,
+    "issues_detected": 3,
+    "coverage_score": 0.5,
+    "checks_performed": {
+      "data_quality": false,
+      "data_drift": true,
+      "outliers": false,
+      "model_performance": true
+    },
+    "artifacts": [
+      "nannyml\\nannyml_performance.html",
+      "nannyml\\nannyml_drift.html"
+    ]
+  }
+}

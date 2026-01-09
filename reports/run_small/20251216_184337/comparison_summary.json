@@ -1,0 +1,86 @@
+{
+  "gx": {
+    "execution_time_sec": 0.2164924144744873,
+    "memory_peak_mb": 357.13671875,
+    "issues_detected": 1,
+    "coverage_score": 0.5,
+    "checks_performed": {
+      "data_quality": true,
+      "data_drift": false,
+      "outliers": true,
+      "model_performance": false
+    },
+    "check_values": {
+      "data_quality": 1,
+      "data_drift": null,
+      "outliers": 1,
+      "model_performance": null
+    },
+    "artifacts": [
+      "gx\\gx_validation.json"
+    ]
+  },
+  "evidently": {
+    "execution_time_sec": 1.9991528987884521,
+    "memory_peak_mb": 376.57421875,
+    "issues_detected": 0,
+    "coverage_score": 0.75,
+    "checks_performed": {
+      "data_quality": true,
+      "data_drift": true,
+      "outliers": false,
+      "model_performance": true
+    },
+    "check_values": {
+      "data_quality": 0,
+      "data_drift": null,
+      "outliers": null,
+      "model_performance": null
+    },
+    "artifacts": [
+      "evidently\\evidently_report.html"
+    ]
+  },
+  "alibi": {
+    "execution_time_sec": 0.3121826648712158,
+    "memory_peak_mb": 365.41015625,
+    "issues_detected": 14,
+    "coverage_score": 0.5,
+    "checks_performed": {
+      "data_quality": false,
+      "data_drift": true,
+      "outliers": true,
+      "model_performance": false
+    },
+    "check_values": {
+      "data_quality": null,
+      "data_drift": "1/3",
+      "outliers": 13,
+      "model_performance": null
+    },
+    "artifacts": [
+      "alibi\\alibi_outliers.json",
+      "alibi\\alibi_drift.json"
+    ]
+  },
+  "nannyml": {
+    "execution_time_sec": 0,
+    "memory_peak_mb": 0,
+    "issues_detected": -1,
+    "coverage_score": 0,
+    "checks_performed": {
+      "data_quality": false,
+      "data_drift": false,
+      "outliers": false,
+      "model_performance": false
+    },
+    "check_values": {
+      "data_quality": null,
+      "data_drift": null,
+      "outliers": null,
+      "model_performance": null
+    },
+    "artifacts": [],
+    "error": "'tuple' object has no attribute 'lower'"
+  }
+}

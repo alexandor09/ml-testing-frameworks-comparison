@@ -1,0 +1,27 @@
+{
+  "best_framework": "gx",
+  "details": {
+    "execution_time_sec": 0.20766162872314453,
+    "memory_peak_mb": 363.06640625,
+    "issues_detected": 1,
+    "coverage_score": 1.0,
+    "checks_performed": {
+      "data_quality": true,
+      "data_drift": true,
+      "outliers": true,
+      "model_performance": true
+    },
+    "check_values": {
+      "data_quality": 1,
+      "data_drift": "3/3",
+      "outliers": 1,
+      "model_performance": {
+        "mae": 27.577079694085274,
+        "rmse": 48.256418601051564
+      }
+    },
+    "artifacts": [
+      "gx\\gx_validation.json"
+    ]
+  }
+}

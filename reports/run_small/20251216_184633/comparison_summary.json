@@ -1,0 +1,62 @@
+{
+  "gx": {
+    "execution_time_sec": 0.19743943214416504,
+    "memory_peak_mb": 358.46484375,
+    "issues_detected": 1,
+    "coverage_score": 1.0,
+    "checks_performed": {
+      "data_quality": true,
+      "data_drift": true,
+      "outliers": true,
+      "model_performance": true
+    },
+    "check_values": {
+      "data_quality": 1,
+      "data_drift": "2/3",
+      "outliers": 1,
+      "model_performance": {
+        "mae": 15.400249550326583,
+        "rmse": 19.31716778244298
+      }
+    },
+    "artifacts": [
+      "gx\\gx_validation.json"
+    ]
+  },
+  "evidently": {
+    "execution_time_sec": 1.886094331741333,
+    "memory_peak_mb": 377.859375,
+    "issues_detected": 0,
+    "coverage_score": 1.0,
+    "checks_performed": {
+      "data_quality": true,
+      "data_drift": true,
+      "outliers": true,
+      "model_performance": true
+    },
+    "check_values": {
+      "data_quality": 0,
+      "data_drift": null,
+      "outliers": 5,
+      "model_performance": {
+        "mae": 15.400249550326583,
+        "rmse": 19.31716778244298
+      }
+    },
+    "artifacts": [
+      "evidently\\evidently_report.html"
+    ]
+  },
+  "alibi": {
+    "execution_time_sec": 0.2505357265472412,
+    "memory_peak_mb": 366.65234375,
+    "issues_detected": 14,
+    "coverage_score": 1.0,
+    "checks_performed": {
+      "data_quality": true,
+      "data_drift": true,
+      "outliers": true,
+      "model_performance": true
+    },
+    "check_values": {
+      "data_quality": 
