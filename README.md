@@ -42,7 +42,7 @@ What it demonstrates (in ~3–5 minutes):
 The contributors give **no warranty** for using this software.
 
 ## Licence
-- This program is open to use anywhere and is licensed under the GNU General Public License v3.0.
+- This program is free for use anywhere and is distributed under the MIT license.
 
 ## Project structure
 - `main.py`: CLI entry point (runs experiments and saves reports)
