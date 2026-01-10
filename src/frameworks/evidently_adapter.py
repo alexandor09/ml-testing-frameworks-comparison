@@ -1,6 +1,7 @@
 import pandas as pd
 import os
 import numpy as np
+import json
 from evidently import Report
 from evidently.presets import DataDriftPreset, DataSummaryPreset
 from .base import BaseAdapter
@@ -182,6 +183,27 @@ class EvidentlyAdapter(BaseAdapter):
                             check_values['data_drift'] = f"{drift_detected}/{len(drift_features)}"
                     except Exception:
                         pass
+
+            # Для мини-таблицы: сохраняем какие именно признаки дрейфуют (KS-test train vs test)
+            try:
+                from scipy import stats
+
+                drift_features = [c for c in ['price', 'promotion', 'y'] if c in train_ref.columns and c in current.columns]
+                drift_per_feature = {}
+                p_values = {}
+                for feature in drift_features:
+                    a = train_ref[feature].dropna().values
+                    b = current[feature].dropna().values
+                    if len(a) > 0 and len(b) > 0:
+                        _, p = stats.ks_2samp(a, b)
+                        p_values[feature] = float(p)
+                        drift_per_feature[feature] = bool(p < 0.05)
+                drift_path = os.path.join(output_dir, "evidently_drift.json")
+                with open(drift_path, "w", encoding="utf-8") as f:
+                    json.dump({"is_drift_per_feature": drift_per_feature, "p_values": p_values}, f, ensure_ascii=False, indent=2)
+                artifacts.append(drift_path)
+            except Exception:
+                pass
             
             if checks_performed['data_quality']:
                 # Для data_quality используем issues_detected как индикатор
@@ -201,6 +223,55 @@ class EvidentlyAdapter(BaseAdapter):
                         check_values['outliers'] = int(outliers_count)
                 except Exception:
                     pass
+
+            # Outliers for price (same IQR method), stored in a separate key for mini-table scripts
+            if checks_performed['outliers'] and 'price' in current.columns:
+                try:
+                    p_values = current['price'].dropna().values
+                    if len(p_values) > 0:
+                        Q1 = np.percentile(p_values, 25)
+                        Q3 = np.percentile(p_values, 75)
+                        IQR = Q3 - Q1
+                        lower_bound = Q1 - 1.5 * IQR
+                        upper_bound = Q3 + 1.5 * IQR
+                        outliers_count_p = int(np.sum((p_values < lower_bound) | (p_values > upper_bound)))
+                        check_values['outliers_price'] = int(outliers_count_p)
+                except Exception:
+                    pass
+
+            # Для precision/FP: сохраняем row_id (индексы строк test) выбросов по y/price
+            try:
+                out_json = {"outliers_y_rows": [], "outliers_price_rows": []}
+                if 'y' in current.columns:
+                    y_series = current['y'].dropna()
+                    yv = y_series.values
+                    if len(yv) > 0:
+                        Q1 = np.percentile(yv, 25)
+                        Q3 = np.percentile(yv, 75)
+                        IQR = Q3 - Q1
+                        lo = Q1 - 1.5 * IQR
+                        hi = Q3 + 1.5 * IQR
+                        mask = (yv < lo) | (yv > hi)
+                        idx = y_series.index.tolist()
+                        out_json["outliers_y_rows"] = [idx[i] for i in np.where(mask)[0].tolist() if i < len(idx)]
+                if 'price' in current.columns:
+                    p_series = current['price'].dropna()
+                    pv = p_series.values
+                    if len(pv) > 0:
+                        Q1 = np.percentile(pv, 25)
+                        Q3 = np.percentile(pv, 75)
+                        IQR = Q3 - Q1
+                        lo = Q1 - 1.5 * IQR
+                        hi = Q3 + 1.5 * IQR
+                        mask = (pv < lo) | (pv > hi)
+                        idx = p_series.index.tolist()
+                        out_json["outliers_price_rows"] = [idx[i] for i in np.where(mask)[0].tolist() if i < len(idx)]
+                out_path = os.path.join(output_dir, "evidently_outliers.json")
+                with open(out_path, "w", encoding="utf-8") as f:
+                    json.dump(out_json, f, ensure_ascii=False, indent=2)
+                artifacts.append(out_path)
+            except Exception:
+                pass
             
             # Model Performance: если не нашли в отчете, вычисляем напрямую
             if checks_performed['model_performance'] and check_values['model_performance'] is None:

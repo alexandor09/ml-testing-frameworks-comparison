@@ -5,6 +5,7 @@ import numpy as np
 from .base import BaseAdapter
 from .monitoring import measure_time_and_peak_rss_mb
 from typing import Dict, Any
+import json
 
 class GXAdapter(BaseAdapter):
     def run_checks(self, train_df: pd.DataFrame, test_df: pd.DataFrame, predictions: pd.DataFrame, output_dir: str) -> Dict[str, Any]:
@@ -102,10 +103,13 @@ class GXAdapter(BaseAdapter):
                     import great_expectations.expectations as gxe
                     suite.add_expectation(gxe.ExpectColumnValuesToNotBeNull(column="ds"))
                     suite.add_expectation(gxe.ExpectColumnValuesToNotBeNull(column="y"))
+                    suite.add_expectation(gxe.ExpectColumnValuesToNotBeNull(column="price"))
                     suite.add_expectation(gxe.ExpectColumnValuesToBeBetween(column="y", min_value=0))
-                    # Генераторы дают price примерно в диапазоне 80..120 (а в drift-сценарии могут быть выше),
-                    # поэтому 100 здесь давал ложные срабатывания даже на "ideal".
-                    suite.add_expectation(gxe.ExpectColumnValuesToBeBetween(column="price", min_value=0, max_value=130))
+                    # Норма диапазона цены для мини-таблицы / out-of-range:
+                    # price ∈ [80; 120]. Дрейфующий сценарий специально уводит цену выше.
+                    suite.add_expectation(gxe.ExpectColumnValuesToBeBetween(column="price", min_value=80, max_value=120))
+                    # Дубликаты по ds (для сценария pass).
+                    suite.add_expectation(gxe.ExpectColumnValuesToBeUnique(column="ds"))
                     suite.add_expectation(gxe.ExpectColumnValuesToBeInSet(column="promotion", value_set=[0, 1]))
                 except (ImportError, AttributeError):
                     # Fallback if module structure is different
@@ -124,11 +128,13 @@ class GXAdapter(BaseAdapter):
                 # Old way
                 validator.expect_column_values_to_be_not_null(column="ds")
                 validator.expect_column_values_to_be_not_null(column="y")
+                validator.expect_column_values_to_be_not_null(column="price")
                 validator.expect_column_values_to_be_between(column="y", min_value=0)  # Спрос неотрицательный
 
                 # Ожидания для регрессоров
-                validator.expect_column_values_to_be_between(column="price", min_value=0, max_value=130)
+                validator.expect_column_values_to_be_between(column="price", min_value=80, max_value=120)
                 validator.expect_column_values_to_be_in_set(column="promotion", value_set=[0, 1])
+                validator.expect_column_values_to_be_unique(column="ds")
 
                 validator.save_expectation_suite(discard_failed_expectations=False)
 
@@ -187,6 +193,28 @@ class GXAdapter(BaseAdapter):
                             
                         json.dump(res_dict, f, indent=2, ensure_ascii=False)
                     artifacts.append(res_path)
+
+            # Доп. артефакт для мини-таблицы: row_id (индексы строк test) по типам проблем.
+            # Это позволяет считать EF_total/EF_true/FP на test через пересечение множеств.
+            try:
+                issue_rows = {}
+                if "y" in test_df.columns:
+                    issue_rows["missing_y_rows"] = test_df.index[test_df["y"].isna()].tolist()
+                if "price" in test_df.columns:
+                    issue_rows["missing_price_rows"] = test_df.index[test_df["price"].isna()].tolist()
+                    price = test_df["price"]
+                    issue_rows["out_of_range_price_rows"] = test_df.index[
+                        price.notna() & ((price < 80) | (price > 120))
+                    ].tolist()
+                if "ds" in test_df.columns:
+                    issue_rows["dup_ds_rows"] = test_df.index[test_df["ds"].duplicated(keep=False)].tolist()
+
+                issues_path = os.path.join(output_dir, "gx_issue_rows.json")
+                with open(issues_path, "w", encoding="utf-8") as f:
+                    json.dump(issue_rows, f, ensure_ascii=False, indent=2)
+                artifacts.append(issues_path)
+            except Exception:
+                pass
             
             # Data Drift: сравниваем распределения признаков между train и test
             if checks_performed['data_drift']:
@@ -194,6 +222,8 @@ class GXAdapter(BaseAdapter):
                 if drift_features:
                     drift_count = 0
                     total_features = len(drift_features)
+                    drift_per_feature = {}
+                    p_values = {}
                     
                     for feature in drift_features:
                         # Используем KS тест для проверки дрифта
@@ -203,12 +233,32 @@ class GXAdapter(BaseAdapter):
                             test_values = test_df[feature].dropna().values
                             if len(train_values) > 0 and len(test_values) > 0:
                                 _, p_value = stats.ks_2samp(train_values, test_values)
-                                if p_value < 0.05:  # Статистически значимый дрифт
+                                p_values[feature] = float(p_value)
+                                is_drift = bool(p_value < 0.05)
+                                drift_per_feature[feature] = is_drift
+                                if is_drift:  # Статистически значимый дрифт
                                     drift_count += 1
                         except Exception:
                             pass
                     
                     check_values['data_drift'] = f"{drift_count}/{total_features}"
+
+                    # Артефакт: какие фичи задрифтило (для EF_true/FP по признакам)
+                    try:
+                        drift_path = os.path.join(output_dir, "gx_drift.json")
+                        with open(drift_path, "w", encoding="utf-8") as f:
+                            json.dump(
+                                {
+                                    "is_drift_per_feature": drift_per_feature,
+                                    "p_values": p_values,
+                                },
+                                f,
+                                ensure_ascii=False,
+                                indent=2,
+                            )
+                        artifacts.append(drift_path)
+                    except Exception:
+                        pass
             
             # Model Performance: вычисляем метрики на основе predictions
             if checks_performed['model_performance'] and 'yhat' in test_df.columns and 'y' in test_df.columns:

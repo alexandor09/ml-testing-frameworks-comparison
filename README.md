@@ -17,6 +17,12 @@ The project is designed as a small console application that:
 
 For quick start commands (English only), see `COMMANDS.md`.
 
+## Evaluation protocol (fixed rules)
+
+- **Train/Test split**: the dataset is sorted by `ds` and split by time into **80/20** in `main.py`
+  (the **last 20% of dates** are the test part).
+- **E_test and EF_test**: **E_test and EF_test are computed on the test part** (the last 20% by time).
+
 ## Google Colab demo
 
 Open the ready-to-run notebook in Colab:
@@ -30,7 +36,7 @@ What it demonstrates (in ~3–5 minutes):
 
 ## Authors and contributors
 - Alexander N. Orzhekhovskiy — main author, implementation and experiments
-- Vladimir A. Parkhomenko — advisor and contributor (Senior Lecturer)
+- Vladimir A. Parkhomenko — advisor and minor author (Senior Lecturer)
 
 ## Warranty
 The contributors give **no warranty** for using this software.
@@ -48,4 +54,20 @@ The contributors give **no warranty** for using this software.
 - `generate_scenarios.py`: scenario generator (ideal / pass / drift)
 - `data/`: generated input datasets (`.csv` and `.json`)
 - `reports/`: experiment artifacts (HTML dashboards, JSON summaries)
+
+## Mini-table definitions (units are fixed)
+
+We use unified, comparable units for a compact mini-table:
+
+- **D_pass (test)**:
+  - `missing_y`: number of test rows where `y` is NaN
+  - `missing_price`: number of test rows where `price` is NaN
+  - `dup_ds`: number of test rows whose `ds` is duplicated (i.e. rows with `ds` repeats; `duplicated(keep=False)`)
+- **D_dr (test)**:
+  - `drift_features`: number of drifted features among `{price, promotion, y}` (unit: **features**, 0..3)
+  - `outliers_y`: number of test rows that are outliers by IQR on `y` (k = 1.5)
+  - `outliers_price`: number of test rows that are outliers by IQR on `price` (k = 1.5)
+  - `out_of_range_price`: number of test rows where `price` is outside **[80; 120]**
+
+Note: in the **pass** scenario drift/outliers are not injected (E_test=0 for these types); any tool detections for these types are interpreted as **false alarms (FP)** caused by train/test differences and the impact of missing values on distributions.
 

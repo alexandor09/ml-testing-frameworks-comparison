@@ -32,20 +32,14 @@ class AlibiAdapter(BaseAdapter):
             X_train = train_df['y'].dropna().values.reshape(-1, 1)
             X_test = test_df['y'].dropna().values.reshape(-1, 1)
 
-            # 1. Инициализация детектора выбросов (Isolation Forest)
-            # Проблема: Isolation Forest сравнивает test с train, что может давать ложные срабатывания
-            # из-за естественного временного дрейфа между train и test периодами.
-            # Используем более консервативный подход: проверяем выбросы относительно самого test набора
-            # через IQR метод, а не сравниваем с train
+            # 1. Outliers (IQR, k=1.5) in our unified units (rows)
             if len(X_test) > 0 and len(X_train) > 0:
-                # Используем IQR метод для более стабильных результатов на временных рядах
-                # Это избегает проблемы ложных срабатываний из-за временного дрейфа
                 try:
                     Q1 = np.percentile(X_test, 25)
                     Q3 = np.percentile(X_test, 75)
                     IQR = Q3 - Q1
-                    lower_bound = Q1 - 3.0 * IQR  # Используем 3.0 вместо 1.5 для более консервативного подхода
-                    upper_bound = Q3 + 3.0 * IQR
+                    lower_bound = Q1 - 1.5 * IQR
+                    upper_bound = Q3 + 1.5 * IQR
                     outliers_mask = (X_test.flatten() < lower_bound) | (X_test.flatten() > upper_bound)
                     outliers_count = int(np.sum(outliers_mask))
                     issues_detected += outliers_count
@@ -74,7 +68,7 @@ class AlibiAdapter(BaseAdapter):
             # Сохранение результатов выбросов
             if checks_performed['outliers']:
                 outlier_indices = []
-                method_used = "IQR (3.0 * IQR)"
+                method_used = "IQR (1.5 * IQR)"
                 
                 if 'outliers_mask' in locals():
                     # Случай с IQR методом
@@ -93,10 +87,29 @@ class AlibiAdapter(BaseAdapter):
                         outlier_indices = [clean_indices[i] for i in outlier_indices_in_clean if i < len(clean_indices)]
                 
                 result_od = {
-                    "outliers_detected": check_values.get('outliers', 0),
+                    "outliers_detected_y": check_values.get('outliers', 0),
                     "outlier_indices": outlier_indices,
                     "method": method_used
                 }
+
+                # Дополнительно: outliers по price (same IQR k=1.5)
+                try:
+                    if 'price' in test_df.columns:
+                        p_series = test_df['price'].dropna()
+                        p = p_series.values
+                        if len(p) > 0:
+                            Q1p = np.percentile(p, 25)
+                            Q3p = np.percentile(p, 75)
+                            IQRp = Q3p - Q1p
+                            lop = Q1p - 1.5 * IQRp
+                            hip = Q3p + 1.5 * IQRp
+                            mask_p = (p < lop) | (p > hip)
+                            result_od["outliers_detected_price"] = int(np.sum(mask_p))
+                            # row_id (индексы строк test_df после сортировки/разбиения)
+                            out_idx_p = p_series.index.tolist()
+                            result_od["outlier_price_indices"] = [out_idx_p[i] for i in np.where(mask_p)[0].tolist() if i < len(out_idx_p)]
+                except Exception:
+                    pass
 
                 result_path_od = os.path.join(output_dir, "alibi_outliers.json")
                 import json
@@ -171,7 +184,7 @@ class AlibiAdapter(BaseAdapter):
             if checks_performed['data_quality']:
                 quality_issues = 0
                 # Проверяем пропуски
-                for col in ['ds', 'y']:
+                for col in ['ds', 'y', 'price']:
                     if col in test_df.columns:
                         missing_count = int(test_df[col].isna().sum())
                         quality_issues += missing_count
