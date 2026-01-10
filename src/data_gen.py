@@ -169,5 +169,6 @@ if __name__ == "__main__":
     
     # Большой датасет
     print("Генерация большого датасета...")
-    df_big = generate_data(n_rows=20000)
+    # Требование: увеличить Big до 40000 строк
+    df_big = generate_data(n_rows=40000)
     save_data(df_big, 'data', 'big')

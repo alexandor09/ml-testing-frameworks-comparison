@@ -17,6 +17,17 @@ The project is designed as a small console application that:
 
 For quick start commands (English only), see `COMMANDS.md`.
 
+## Google Colab demo
+
+Open the ready-to-run notebook in Colab:
+- `https://colab.research.google.com/github/alexandor09/ml-testing-frameworks-comparison/blob/main/colab_demo.ipynb`
+
+What it demonstrates (in ~3–5 minutes):
+- datasets location: `data/*.csv`, `data/*.json`
+- scenario generation with "injected" issues: `generate_scenarios.py`
+- checks and "detected issues": `main.py`, `src/frameworks/*_adapter.py` (`issues_detected`, `check_values`)
+- outputs: `reports/<run_name>/<timestamp>/...` (JSON summaries + HTML dashboards for full run)
+
 ## Authors and contributors
 - Alexander N. Orzhekhovskiy — main author, implementation and experiments
 - Vladimir A. Parkhomenko — advisor and contributor (Senior Lecturer)

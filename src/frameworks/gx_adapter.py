@@ -75,7 +75,9 @@ class GXAdapter(BaseAdapter):
             # Создание Expectation Suite
             suite_name = "my_suite"
             try:
-                context.add_or_update_expectation_suite(expectation_suite_name=suite_name)
+                # В некоторых версиях GX метод возвращает suite - сохраняем ссылку,
+                # иначе ниже может получиться NameError на `suite`.
+                suite = context.add_or_update_expectation_suite(expectation_suite_name=suite_name)
             except AttributeError:
                 # GX 1.0+
                 if hasattr(context, "suites"):
@@ -101,7 +103,9 @@ class GXAdapter(BaseAdapter):
                     suite.add_expectation(gxe.ExpectColumnValuesToNotBeNull(column="ds"))
                     suite.add_expectation(gxe.ExpectColumnValuesToNotBeNull(column="y"))
                     suite.add_expectation(gxe.ExpectColumnValuesToBeBetween(column="y", min_value=0))
-                    suite.add_expectation(gxe.ExpectColumnValuesToBeBetween(column="price", min_value=0, max_value=100))
+                    # Генераторы дают price примерно в диапазоне 80..120 (а в drift-сценарии могут быть выше),
+                    # поэтому 100 здесь давал ложные срабатывания даже на "ideal".
+                    suite.add_expectation(gxe.ExpectColumnValuesToBeBetween(column="price", min_value=0, max_value=130))
                     suite.add_expectation(gxe.ExpectColumnValuesToBeInSet(column="promotion", value_set=[0, 1]))
                 except (ImportError, AttributeError):
                     # Fallback if module structure is different
@@ -123,7 +127,7 @@ class GXAdapter(BaseAdapter):
                 validator.expect_column_values_to_be_between(column="y", min_value=0)  # Спрос неотрицательный
 
                 # Ожидания для регрессоров
-                validator.expect_column_values_to_be_between(column="price", min_value=0, max_value=100)
+                validator.expect_column_values_to_be_between(column="price", min_value=0, max_value=130)
                 validator.expect_column_values_to_be_in_set(column="promotion", value_set=[0, 1])
 
                 validator.save_expectation_suite(discard_failed_expectations=False)

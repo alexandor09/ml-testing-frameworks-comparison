@@ -27,8 +27,12 @@ source .venv/bin/activate
 ### 2) Install dependencies
 
 ```bash
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
+
+Notes (Windows / PowerShell):
+- If you see `Fatal error in launcher: Unable to create process ... pip.exe`, your `.venv` was likely moved/renamed.
+  Fix: recreate the venv (see below) or use `python -m pip ...` which bypasses the broken `pip.exe` launcher.
 
 ## Data generation
 
@@ -52,6 +56,20 @@ Show CLI help:
 python main.py --help
 ```
 
+## Google Colab
+
+Open notebook:
+
+```text
+https://colab.research.google.com/github/alexandor09/ml-testing-frameworks-comparison/blob/main/colab_demo.ipynb
+```
+
+The notebook shows:
+- where datasets are (`data/`)
+- which scripts generate scenarios (`generate_scenarios.py`)
+- how to run checks (`main.py`) and where "issues_detected" comes from (`src/frameworks/*_adapter.py`)
+- where outputs appear (`reports/<run_name>/<timestamp>/...`)
+
 Run all 4 frameworks (CSV):
 
 ```bash
@@ -60,6 +78,21 @@ python main.py --input data/big.csv   --format csv --output reports/run_big
 python main.py --input data/ideal.csv --format csv --output reports/run_ideal
 python main.py --input data/pass.csv  --format csv --output reports/run_pass
 python main.py --input data/dr.csv    --format csv --output reports/run_dr
+```
+
+## Troubleshooting (Windows)
+
+If `python main.py ...` fails with `ModuleNotFoundError: No module named 'pandas'`, it means dependencies were not installed into the currently used interpreter.
+
+Recommended fix (recreate venv):
+
+```bash
+deactivate
+Remove-Item -Recurse -Force .venv
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip setuptools wheel
+python -m pip install -r requirements.txt
 ```
 
 Run all 4 frameworks (JSON):

@@ -130,15 +130,27 @@ class NannyMLAdapter(BaseAdapter):
                 artifacts.append(drift_fig_path)
 
                 drift_alerts = drift_results.filter(period='analysis').to_df()
-                drift_alert_count = 0
-                for col in [c for c in drift_alerts.columns if 'alert' in c]:
-                    drift_alert_count += int(drift_alerts[col].sum())
-                    issues_detected += int(drift_alerts[col].sum())
+                # В NannyML алерты выставляются по чанкам (по времени), поэтому суммарное число алертов
+                # может быть больше числа фич. Для человеко-читаемого DD считаем:
+                # - drifted_features: сколько фич хотя бы раз дали alert
+                # - total_alerts: сколько alert'ов всего (по всем чанкам и фичам)
+                total_alerts = 0
+                drifted_features = 0
+
+                alert_cols = [c for c in drift_alerts.columns if 'alert' in str(c).lower()]
+                for c in alert_cols:
+                    col_alerts = int(drift_alerts[c].sum())
+                    total_alerts += col_alerts
+                    issues_detected += col_alerts
+                    if col_alerts > 0:
+                        drifted_features += 1
                 
                 # Сохраняем значение data_drift
                 if checks_performed['data_drift']:
                     total_features = len(drift_features)
-                    check_values['data_drift'] = f"{drift_alert_count}/{total_features}"
+                    # Формат для таблицы (max_len=12 в main.py): "X/Y a=Z"
+                    # где X/Y — число задрифтевших фич, a=Z — число алертов по чанкам.
+                    check_values['data_drift'] = f"{drifted_features}/{total_features} a={total_alerts}"
             
             # Data Quality: проверяем пропуски и некорректные значения
             if checks_performed['data_quality']:

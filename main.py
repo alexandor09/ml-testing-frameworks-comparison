@@ -7,10 +7,6 @@ from datetime import datetime
 import random
 import numpy as np
 from src.model import ForecastModel, calculate_metrics
-from src.frameworks.gx_adapter import GXAdapter
-from src.frameworks.evidently_adapter import EvidentlyAdapter
-from src.frameworks.alibi_adapter import AlibiAdapter
-from src.frameworks.nannyml_adapter import NannyMLAdapter
 from src.reporting import save_json_report, generate_dashboard, determine_best_framework, save_split_demonstration
 
 # Настройка логирования
@@ -48,6 +44,50 @@ def _normalize_artifacts(artifacts, run_dir: str):
         except Exception:
             out.append(a_str)
     return out
+
+
+def _build_adapters(framework: str | None):
+    """
+    Создает словарь адаптеров.
+
+    Важно: импортируем адаптеры лениво, чтобы можно было запускать один фреймворк
+    без установки зависимостей остальных (удобно для Google Colab демо).
+    """
+    adapters = {}
+
+    def _import_one(name: str):
+        if name == "gx":
+            from src.frameworks.gx_adapter import GXAdapter  # noqa: WPS433 (runtime import)
+            return GXAdapter()
+        if name == "evidently":
+            from src.frameworks.evidently_adapter import EvidentlyAdapter  # noqa: WPS433
+            return EvidentlyAdapter()
+        if name == "alibi":
+            from src.frameworks.alibi_adapter import AlibiAdapter  # noqa: WPS433
+            return AlibiAdapter()
+        if name == "nannyml":
+            from src.frameworks.nannyml_adapter import NannyMLAdapter  # noqa: WPS433
+            return NannyMLAdapter()
+        raise ValueError(f"Unknown framework: {name}")
+
+    all_names = ["gx", "evidently", "alibi", "nannyml"]
+    names = [framework] if framework else all_names
+
+    for name in names:
+        try:
+            adapters[name] = _import_one(name)
+        except Exception as e:
+            if framework:
+                # Если пользователь явно выбрал фреймворк — падаем сразу и объясняем.
+                raise RuntimeError(
+                    f"Не удалось импортировать адаптер '{name}'. "
+                    f"Проверьте зависимости (pip install -r requirements.txt). "
+                    f"Оригинальная ошибка: {e}"
+                ) from e
+            # Если это полный прогон — пропускаем недоступный фреймворк, но продолжаем.
+            logging.warning(f"Пропускаю фреймворк '{name}': не удалось импортировать ({e}).")
+
+    return adapters
 
 def main():
     parser = argparse.ArgumentParser(description="CLI для сравнения ML-фреймворков")
@@ -109,11 +149,13 @@ def main():
     print(f"Первая дата Test:     {first_test_date}")
     print(f"Разрыв между Train и Test: {date_gap} дней")
     if date_gap == 1:
-        print("✓ Даты идут последовательно без пропусков")
+        # В некоторых Windows-консолях (CP1251) символы вроде "✓" ломают вывод.
+        print("OK: даты идут последовательно без пропусков")
     elif date_gap > 1:
-        print(f"⚠ Внимание: есть пропуск в {date_gap - 1} дней между train и test")
+        # Аналогично: избегаем символов вроде "⚠" в консоли CP1251.
+        print(f"WARNING: есть пропуск в {date_gap - 1} дней между train и test")
     else:
-        print("✓ Даты идут последовательно")
+        print("OK: даты идут последовательно")
     
     print("=" * 100)
     print()
@@ -172,18 +214,8 @@ def main():
     save_json_report(metrics, os.path.join(output_dir, "model_metrics.json"))
     logging.info(f"Метрики модели: {metrics}")
     
-    # Фреймворки для запуска
-    adapters = {
-        'gx': GXAdapter(),
-        'evidently': EvidentlyAdapter(),
-        'alibi': AlibiAdapter(),
-        'nannyml': NannyMLAdapter()
-    }
-    
-    if args.framework:
-        selected_adapters = {args.framework: adapters[args.framework]}
-    else:
-        selected_adapters = adapters
+    # Фреймворки для запуска (ленивый импорт адаптеров)
+    selected_adapters = _build_adapters(args.framework)
         
     comparison_summary = {}
     

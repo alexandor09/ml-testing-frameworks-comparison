@@ -16,10 +16,27 @@ class ForecastModel:
         Обучает модель Prophet.
         Ожидает df с колонками: ds, y, price, promotion
         """
-        self.model = Prophet(yearly_seasonality=True, weekly_seasonality=True, daily_seasonality=False)
+        # На больших train-наборах (10k+ точек) Prophet/CmdStan может упасть по памяти
+        # на слабых машинах (std::bad_alloc). Для нашего учебного проекта достаточно
+        # обучаться на ограниченном окне последних наблюдений.
+        max_train_rows = 5000
+        train_df = df.tail(max_train_rows).copy() if len(df) > max_train_rows else df
+
+        # Prophet по умолчанию генерирует доверительные интервалы через 1000 симуляций
+        # (uncertainty_samples=1000). На датасетах 20k+ это может приводить к выделению
+        # больших матриц и падению с `_ArrayMemoryError` даже на "ideal".
+        # Уменьшаем число сэмплов: интервалы остаются, но память/время резко падают.
+        self.model = Prophet(
+            yearly_seasonality=True,
+            weekly_seasonality=True,
+            daily_seasonality=False,
+            uncertainty_samples=50,
+            # Чуть упрощаем модель, чтобы быстрее/стабильнее обучаться на Windows
+            n_changepoints=15,
+        )
         self.model.add_regressor('price')
         self.model.add_regressor('promotion')
-        self.model.fit(df)
+        self.model.fit(train_df)
 
     def predict(self, df: pd.DataFrame) -> pd.DataFrame:
         """

@@ -110,11 +110,48 @@ def generate_base_data(n_rows: int, start_date: str = '2023-01-01', seed: int = 
 
 def generate_ideal_data(n_rows: int = 20000, seed: int = 42) -> pd.DataFrame:
     """
-    Генерирует идеальные данные без проблем.
+    Генерирует "идеальные" данные без проблем для всех фреймворков.
+
+    Важно:
+    - В `main.py` используется строгое разбиение по времени (последние 20% = test).
+    - На больших выборках KS/дрейф-тесты очень чувствительны, поэтому даже нормальный тренд/сезонность
+      могут выглядеть как "дрейф".
+    - Чтобы "ideal" стабильно проходил проверки, делаем данные стационарными и повторяем одинаковые блоки:
+      тогда train и test имеют одинаковое эмпирическое распределение.
     """
-    df = generate_base_data(n_rows, seed=seed)
-    # Идеальные данные - без изменений
-    return df
+    rng = np.random.default_rng(seed)
+
+    # Делаем блок кратным будущему split'у (80/20) в main.py.
+    # При n_rows=20000 split_idx=16000, block_size=1000 => и train, и test состоят из целых блоков.
+    block_size = 1000
+    if n_rows % block_size != 0:
+        # Чтобы не усложнять математику, просто подгоним n_rows вверх до кратности block_size
+        n_rows = int(np.ceil(n_rows / block_size) * block_size)
+
+    n_blocks = n_rows // block_size
+
+    # Блок: умеренные, "безопасные" диапазоны.
+    # y держим в [90, 110], чтобы IQR-детекторы выбросов (особенно в Alibi) не находили outliers.
+    t = np.arange(block_size)
+    promotion_block = rng.choice([0, 1], size=block_size, p=[0.95, 0.05]).astype(int)
+    price_block = 95 + 2.0 * np.sin(2 * np.pi * t / 30) + rng.uniform(-0.5, 0.5, size=block_size)
+    price_block = np.clip(price_block, 90, 100)
+
+    y_block = (
+        100
+        + 3.0 * np.sin(2 * np.pi * t / 7)
+        - 2.0 * promotion_block
+        + rng.uniform(-1.0, 1.0, size=block_size)
+    )
+    y_block = np.clip(y_block, 90, 110)
+
+    # Тиражируем блоки
+    y = np.tile(y_block, n_blocks)
+    price = np.tile(price_block, n_blocks)
+    promotion = np.tile(promotion_block, n_blocks)
+
+    dates = [datetime.strptime('2023-01-01', '%Y-%m-%d') + timedelta(days=i) for i in range(n_rows)]
+    return pd.DataFrame({'ds': dates, 'y': y, 'price': price, 'promotion': promotion})
 
 
 def generate_data_with_missing_duplicates(n_rows: int = 20000, seed: int = 42) -> pd.DataFrame:
@@ -150,36 +187,46 @@ def generate_data_with_drift_outliers(n_rows: int = 20000, seed: int = 43) -> pd
     """
     Генерирует данные с сильным дрейфом и выбросами.
     """
-    df = generate_base_data(n_rows, seed=seed)
+    # Берем "чистую" базу (как ideal), а дрейф вводим ТОЛЬКО в тестовом хвосте (последние 20%),
+    # потому что `main.py` сравнивает train(0..80%) и test(80..100%).
+    df = generate_ideal_data(n_rows=n_rows, seed=seed)
     
-    # Сильный дрейф во второй половине данных
-    drift_start = n_rows // 2
+    # Дрейф начинается в тестовом периоде
+    drift_start = int(len(df) * 0.8)
+    rng = np.random.default_rng(seed + 1000)
     
-    # Дрейф в цене (резкое изменение)
-    df.loc[drift_start:, 'price'] = df.loc[drift_start:, 'price'] * 1.3 + np.random.normal(0, 5, size=len(df.loc[drift_start:]))
-    df.loc[drift_start:, 'price'] = df.loc[drift_start:, 'price'].clip(80, 120)
+    # 1) Дрейф в цене: сильный сдвиг вверх (выйдет за ожидания GX и даст заметный drift)
+    n_tail = len(df) - drift_start
+    df.loc[drift_start:, 'price'] = df.loc[drift_start:, 'price'] + 60 + rng.normal(0, 3, size=n_tail)
+    df.loc[drift_start:, 'price'] = df.loc[drift_start:, 'price'].clip(90, 180)
     
-    # Дрейф в распределении y (изменение среднего и дисперсии)
-    df.loc[drift_start:, 'y'] = df.loc[drift_start:, 'y'] * 0.7 + np.random.normal(20, 15, size=len(df.loc[drift_start:]))
-    df.loc[drift_start:, 'y'] = np.maximum(df.loc[drift_start:, 'y'], 0)
-    
-    # Дрейф в промо (частота промо меняется)
-    promo_drift = np.random.choice([0, 1], size=len(df.loc[drift_start:]), p=[0.85, 0.15])
+    # 2) Дрейф в промо: промо становится намного чаще
+    promo_drift = rng.choice([0, 1], size=n_tail, p=[0.60, 0.40]).astype(int)
     df.loc[drift_start:, 'promotion'] = promo_drift
     
-    # Добавляем много выбросов (10% данных)
-    n_outliers = int(n_rows * 0.10)
-    outlier_indices = np.random.choice(range(n_rows), size=n_outliers, replace=False)
+    # 3) Дрейф в y: структурный сдвиг + смена влияния промо (коэф-т "переворачивается"),
+    # чтобы модель, обученная на train, деградировала на test (NannyML performance alerts).
+    y_tail = df.loc[drift_start:, 'y'].to_numpy()
+    promo_tail = df.loc[drift_start:, 'promotion'].to_numpy()
+    df.loc[drift_start:, 'y'] = (
+        y_tail
+        - 25.0
+        + 15.0 * promo_tail
+        + rng.normal(0, 8, size=n_tail)
+    )
+    df.loc[drift_start:, 'y'] = np.maximum(df.loc[drift_start:, 'y'], 0)
     
-    # Сильные выбросы в y
-    outlier_values = np.random.choice([-100, -80, 150, 200], size=n_outliers)
-    df.loc[outlier_indices, 'y'] = df.loc[outlier_indices, 'y'] + outlier_values
-    df.loc[outlier_indices, 'y'] = np.maximum(df.loc[outlier_indices, 'y'], 0)
+    # 4) Выбросы: только в тестовом хвосте (чтобы не "обучить" модель на выбросах)
+    n_outliers = int(n_tail * 0.07)
+    outlier_indices = rng.choice(np.arange(drift_start, len(df)), size=n_outliers, replace=False)
     
-    # Выбросы в цене
-    price_outlier_indices = np.random.choice(range(n_rows), size=int(n_rows * 0.05), replace=False)
-    df.loc[price_outlier_indices, 'price'] = np.random.choice([50, 150, 200], size=len(price_outlier_indices))
-    df.loc[price_outlier_indices, 'price'] = df.loc[price_outlier_indices, 'price'].clip(50, 200)
+    outlier_values = rng.choice([-60, -40, 80, 120], size=n_outliers)
+    df.loc[outlier_indices, 'y'] = np.maximum(df.loc[outlier_indices, 'y'] + outlier_values, 0)
+    
+    # 5) Дополнительные выбросы в цене (тоже в хвосте)
+    price_outlier_indices = rng.choice(np.arange(drift_start, len(df)), size=int(n_tail * 0.05), replace=False)
+    df.loc[price_outlier_indices, 'price'] = rng.choice([150, 180, 200], size=len(price_outlier_indices))
+    df.loc[price_outlier_indices, 'price'] = df.loc[price_outlier_indices, 'price'].clip(90, 200)
     
     return df
 
@@ -191,14 +238,15 @@ def save_data(df: pd.DataFrame, output_dir: str, name: str):
     # CSV
     csv_path = os.path.join(output_dir, f'{name}.csv')
     df.to_csv(csv_path, index=False)
-    print(f"✓ Сохранено {csv_path} ({len(df)} строк)")
+    # В Windows-консолях с CP1251 символы вроде "✓" могут ломать вывод (UnicodeEncodeError).
+    print(f"Сохранено {csv_path} ({len(df)} строк)")
     
     # JSON
     json_path = os.path.join(output_dir, f'{name}.json')
     df_json = df.copy()
     df_json['ds'] = df_json['ds'].dt.strftime('%Y-%m-%d')
     df_json.to_json(json_path, orient='records', indent=2)
-    print(f"✓ Сохранено {json_path} ({len(df_json)} строк)")
+    print(f"Сохранено {json_path} ({len(df_json)} строк)")
 
 
 if __name__ == "__main__":
