@@ -1,0 +1,84 @@
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>Демонстрация Train/Test Split</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; }
+    h1 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+    h2 { color: #34495e; margin-top: 30px; }
+    h3 { color: #555; }
+    .info-box {
+      background-color: #ecf0f1;
+      border-left: 4px solid #3498db;
+      padding: 15px;
+      margin: 20px 0;
+    }
+    .success { color: #27ae60; font-weight: bold; }
+    .warning { color: #e67e22; font-weight: bold; }
+    table { border-collapse: collapse; width: 100%; margin: 20px 0; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    th { background-color: #f2f2f2; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>Демонстрация временного разбиения данных (Train/Test Split)</h1>
+  
+  <div class="info-box">
+    <h2>Общая информация о разбиении</h2>
+    <p><strong>Общий размер данных:</strong> 20000 строк</p>
+    <p><strong>Train:</strong> 16000 строк (80.0%)</p>
+    <p style="margin-left: 20px;">Период: с 2023-01-01 00:00:00 по 2066-10-21 00:00:00</p>
+    <p><strong>Test:</strong> 4000 строк (20.0%)</p>
+    <p style="margin-left: 20px;">Период: с 2066-10-22 00:00:00 по 2077-10-03 00:00:00</p>
+  </div>
+  
+  <h2>Проверка непрерывности дат</h2>
+  <div class="info-box">
+    <p><strong>Последняя дата Train:</strong> 2066-10-21 00:00:00</p>
+    <p><strong>Первая дата Test:</strong> 2066-10-22 00:00:00</p>
+    <p><strong>Разрыв между Train и Test:</strong> 1 дней</p>
+    <p class="success">
+      ✓ Даты идут последовательно без пропусков
+    </p>
+  </div>
+  
+  <h2>Демонстрация последовательности данных</h2>
+  <p>Ниже показаны последние строки обучающей выборки и первые строки тестовой выборки. 
+     Видно, что данные отсортированы по времени и не перемешаны.</p>
+  
+  <h3>Последние 5 строк Train (перед разделением)</h3>
+<table style='border-collapse: collapse; width: 100%; margin-bottom: 20px;'>
+<thead><tr style='background-color: #f2f2f2;'><th style='border: 1px solid #ddd; padding: 8px; text-align: left;'>Индекс</th><th style='border: 1px solid #ddd; padding: 8px; text-align: left;'>ds</th><th style='border: 1px solid #ddd; padding: 8px; text-align: left;'>y</th><th style='border: 1px solid #ddd; padding: 8px; text-align: left;'>price</th><th style='border: 1px solid #ddd; padding: 8px; text-align: left;'>promotion</th></tr></thead>
+<tbody>
+<tr><td style='border: 1px solid #ddd; padding: 8px;'>15995</td><td style='border: 1px solid #ddd; padding: 8px;'>2066-10-17 00:00:00</td><td style='border: 1px solid #ddd; padding: 8px;'>101.12</td><td style='border: 1px solid #ddd; padding: 8px;'>97.13</td><td style='border: 1px solid #ddd; padding: 8px;'>1</td></tr>
+<tr><td style='border: 1px solid #ddd; padding: 8px;'>15996</td><td style='border: 1px solid #ddd; padding: 8px;'>2066-10-18 00:00:00</td><td style='border: 1px solid #ddd; padding: 8px;'>102.87</td><td style='border: 1px solid #ddd; padding: 8px;'>97.30</td><td style='border: 1px solid #ddd; padding: 8px;'>0</td></tr>
+<tr><td style='border: 1px solid #ddd; padding: 8px;'>15997</td><td style='border: 1px solid #ddd; padding: 8px;'>2066-10-19 00:00:00</td><td style='border: 1px solid #ddd; padding: 8px;'>102.06</td><td style='border: 1px solid #ddd; padding: 8px;'>96.73</td><td style='border: 1px solid #ddd; padding: 8px;'>0</td></tr>
+<tr><td style='border: 1px solid #ddd; padding: 8px;'>15998</td><td style='border: 1px solid #ddd; padding: 8px;'>2066-10-20 00:00:00</td><td style='border: 1px solid #ddd; padding: 8px;'>99.45</td><td style='border: 1px solid #ddd; padding: 8px;'>96.81</td><td style='border: 1px solid #ddd; padding: 8px;'>0</td></tr>
+<tr><td style='border: 1px solid #ddd; padding: 8px;'>15999</td><td style='border: 1px solid #ddd; padding: 8px;'>2066-10-21 00:00:00</td><td style='border: 1px solid #ddd; padding: 8px;'>96.17</td><td style='border: 1px solid #ddd; padding: 8px;'>96.57</td><td style='border: 1px solid #ddd; padding: 8px;'>0</td></tr>
+</tbody></table>
+
+  
+  <h3>Первые 5 строк Test (после разделения)</h3>
+<table style='border-collapse: collapse; width: 100%; margin-bottom: 20px;'>
+<thead><tr style='background-color: #f2f2f2;'><th style='border: 1px solid #ddd; padding: 8px; text-align: left;'>Индекс</th><th style='border: 1px solid #ddd; padding: 8px; text-align: left;'>ds</th><th style='border: 1px solid #ddd; padding: 8px; text-align: left;'>y</th><th style='border: 1px solid #ddd; padding: 8px; text-align: left;'>price</th><th style='border: 1px solid #ddd; padding: 8px; text-align: left;'>promotion</th></tr></thead>
+<tbody>
+<tr><td style='border: 1px solid #ddd; padding: 8px;'>16000</td><td style='border: 1px solid #ddd; padding: 8px;'>2066-10-22 00:00:00</td><td style='border: 1px solid #ddd; padding: 8px;'>75.80</td><td style='border: 1px solid #ddd; padding: 8px;'>151.58</td><td style='border: 1px solid #ddd; padding: 8px;'>0</td></tr>
+<tr><td style='border: 1px solid #ddd; padding: 8px;'>16001</td><td style='border: 1px solid #ddd; padding: 8px;'>2066-10-23 00:00:00</td><td style='border: 1px solid #ddd; padding: 8px;'>72.29</td><td style='border: 1px solid #ddd; padding: 8px;'>200.00</td><td style='border: 1px solid #ddd; padding: 8px;'>0</td></tr>
+<tr><td style='border: 1px solid #ddd; padding: 8px;'>16002</td><td style='border: 1px solid #ddd; padding: 8px;'>2066-10-24 00:00:00</td><td style='border: 1px solid #ddd; padding: 8px;'>90.97</td><td style='border: 1px solid #ddd; padding: 8px;'>156.43</td><td style='border: 1px solid #ddd; padding: 8px;'>1</td></tr>
+<tr><td style='border: 1px solid #ddd; padding: 8px;'>16003</td><td style='border: 1px solid #ddd; padding: 8px;'>2066-10-25 00:00:00</td><td style='border: 1px solid #ddd; padding: 8px;'>84.73</td><td style='border: 1px solid #ddd; padding: 8px;'>149.17</td><td style='border: 1px solid #ddd; padding: 8px;'>0</td></tr>
+<tr><td style='border: 1px solid #ddd; padding: 8px;'>16004</td><td style='border: 1px solid #ddd; padding: 8px;'>2066-10-26 00:00:00</td><td style='border: 1px solid #ddd; padding: 8px;'>76.74</td><td style='border: 1px solid #ddd; padding: 8px;'>156.44</td><td style='border: 1px solid #ddd; padding: 8px;'>1</td></tr>
+</tbody></table>
+
+  
+  <div class="info-box">
+    <h3>Вывод</h3>
+    <p>Разбиение выполнено <strong>по времени</strong> (temporal split), а не случайным образом:</p>
+    <ul>
+      <li>Данные отсортированы по дате (ds) перед разделением</li>
+      <li>Train содержит более ранние даты (первые 80% данных)</li>
+      <li>Test содержит более поздние даты (последние 20% данных)</li>
+      <li>Даты идут последовательно, что видно из таблиц выше</li>
+    </ul>
+  </div>
+</body>
+</html>

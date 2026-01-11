@@ -1,0 +1,5 @@
+{
+  "outliers_detected": 0,
+  "outlier_indices": [],
+  "method": "IQR (3.0 * IQR)"
+}

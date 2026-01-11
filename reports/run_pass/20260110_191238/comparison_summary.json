@@ -1,0 +1,108 @@
+{
+  "gx": {
+    "execution_time_sec": 0.2716541290283203,
+    "memory_peak_mb": 376.30078125,
+    "issues_detected": 3,
+    "coverage_score": 1.0,
+    "checks_performed": {
+      "data_quality": true,
+      "data_drift": true,
+      "outliers": true,
+      "model_performance": true
+    },
+    "check_values": {
+      "data_quality": 3,
+      "data_drift": "2/3",
+      "outliers": 3,
+      "model_performance": {
+        "mae": 26.2948880450538,
+        "rmse": 32.589336189242616
+      }
+    },
+    "artifacts": [
+      "gx\\gx_validation.json",
+      "gx\\gx_issue_rows.json",
+      "gx\\gx_drift.json"
+    ]
+  },
+  "evidently": {
+    "execution_time_sec": 2.3134899139404297,
+    "memory_peak_mb": 406.92578125,
+    "issues_detected": 1,
+    "coverage_score": 1.0,
+    "checks_performed": {
+      "data_quality": true,
+      "data_drift": true,
+      "outliers": true,
+      "model_performance": true
+    },
+    "check_values": {
+      "data_quality": 1,
+      "data_drift": "2/3",
+      "outliers": 6,
+      "model_performance": {
+        "mae": 26.2948880450538,
+        "rmse": 32.589336189242616
+      },
+      "outliers_price": 0
+    },
+    "artifacts": [
+      "evidently\\evidently_report.html",
+      "evidently\\evidently_drift.json",
+      "evidently\\evidently_outliers.json"
+    ]
+  },
+  "alibi": {
+    "execution_time_sec": 0.06000518798828125,
+    "memory_peak_mb": 395.5546875,
+    "issues_detected": 8,
+    "coverage_score": 1.0,
+    "checks_performed": {
+      "data_quality": true,
+      "data_drift": true,
+      "outliers": true,
+      "model_performance": true
+    },
+    "check_values": {
+      "data_quality": 292,
+      "data_drift": "2/3",
+      "outliers": 6,
+      "model_performance": {
+        "mae": 26.2948880450538,
+        "rmse": 32.589336189242616
+      }
+    },
+    "artifacts": [
+      "alibi\\alibi_outliers.json",
+      "alibi\\alibi_drift.json"
+    ]
+  },
+  "nannyml": {
+    "execution_time_sec": 1.487821340560913,
+    "memory_peak_mb": 404.70703125,
+    "issues_detected": 7,
+    "coverage_score": 1.0,
+    "checks_performed": {
+      "data_quality": true,
+      "data_drift": true,
+      "outliers": true,
+      "model_performance": true
+    },
+    "check_values": {
+      "data_quality": 85,
+      "data_drift": "3/3 a=7",
+      "outliers": 6,
+      "model_performance": {
+        "mae": 26.313059645783245,
+        "rmse": 29.570429393427666
+      },
+      "outliers_price": 0
+    },
+    "artifacts": [
+      "nannyml\\nannyml_performance.html",
+      "nannyml\\nannyml_drift.html",
+      "nannyml\\nannyml_drift_features.json",
+      "nannyml\\nannyml_outliers.json"
+    ]
+  }
+}

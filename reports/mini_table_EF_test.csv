@@ -1,0 +1,13 @@
+scenario,framework,missing_y,missing_price,dup_ds,drift_features,outliers_y,outliers_price,out_of_range_price
+pass,gx,85,207,204,2,NA,NA,0
+pass,evidently,NA,NA,NA,2,6,0,NA
+pass,alibi,NA,NA,NA,2,6,0,NA
+pass,nannyml,NA,NA,NA,3,6,0,NA
+dr,gx,0,0,0,3,NA,NA,4000
+dr,evidently,NA,NA,NA,3,258,144,NA
+dr,alibi,NA,NA,NA,3,258,144,NA
+dr,nannyml,NA,NA,NA,3,258,144,NA
+ideal,gx,0,0,0,0,NA,NA,0
+ideal,evidently,NA,NA,NA,0,0,0,NA
+ideal,alibi,NA,NA,NA,0,0,0,NA
+ideal,nannyml,NA,NA,NA,0,0,0,NA

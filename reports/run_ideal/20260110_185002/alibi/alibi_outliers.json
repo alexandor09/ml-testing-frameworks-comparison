@@ -1,0 +1,6 @@
+{
+  "outliers_detected_y": 0,
+  "outlier_indices": [],
+  "method": "IQR (1.5 * IQR)",
+  "outliers_detected_price": 0
+}

@@ -36,6 +36,5 @@ desktop.ini
 .vscode/
 
 # Project artifacts / generated outputs
-reports/
 __MACOSX/
 

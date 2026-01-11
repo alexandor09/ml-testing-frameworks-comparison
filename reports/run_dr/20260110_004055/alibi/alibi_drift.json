@@ -1,0 +1,13 @@
+{
+  "drift_detected_count": 3,
+  "is_drift_per_feature": {
+    "price": true,
+    "promotion": true,
+    "y": true
+  },
+  "p_values": {
+    "price": 0.0,
+    "promotion": 4.780756021773415e-15,
+    "y": 0.0
+  }
+}

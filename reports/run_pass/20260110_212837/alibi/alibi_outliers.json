@@ -1,0 +1,14 @@
+{
+  "outliers_detected_y": 6,
+  "outlier_indices": [
+    16533,
+    18868,
+    18889,
+    20282,
+    20283,
+    20461
+  ],
+  "method": "IQR (1.5 * IQR)",
+  "outliers_detected_price": 0,
+  "outlier_price_indices": []
+}

@@ -1,0 +1,100 @@
+{
+  "gx": {
+    "execution_time_sec": 0.20400094985961914,
+    "memory_peak_mb": 357.390625,
+    "issues_detected": 1,
+    "coverage_score": 1.0,
+    "checks_performed": {
+      "data_quality": true,
+      "data_drift": true,
+      "outliers": true,
+      "model_performance": true
+    },
+    "check_values": {
+      "data_quality": 1,
+      "data_drift": "3/3",
+      "outliers": 1,
+      "model_performance": {
+        "mae": 22.138078174430717,
+        "rmse": 28.83634617223165
+      }
+    },
+    "artifacts": [
+      "gx\\gx_validation.json"
+    ]
+  },
+  "evidently": {
+    "execution_time_sec": 2.168435573577881,
+    "memory_peak_mb": 378.55859375,
+    "issues_detected": 1,
+    "coverage_score": 1.0,
+    "checks_performed": {
+      "data_quality": true,
+      "data_drift": true,
+      "outliers": true,
+      "model_performance": true
+    },
+    "check_values": {
+      "data_quality": 1,
+      "data_drift": "3/3",
+      "outliers": 258,
+      "model_performance": {
+        "mae": 22.138078174430717,
+        "rmse": 28.83634617223165
+      }
+    },
+    "artifacts": [
+      "evidently\\evidently_report.html"
+    ]
+  },
+  "alibi": {
+    "execution_time_sec": 0.0590059757232666,
+    "memory_peak_mb": 371.8515625,
+    "issues_detected": 175,
+    "coverage_score": 1.0,
+    "checks_performed": {
+      "data_quality": true,
+      "data_drift": true,
+      "outliers": true,
+      "model_performance": true
+    },
+    "check_values": {
+      "data_quality": 0,
+      "data_drift": "3/3",
+      "outliers": 172,
+      "model_performance": {
+        "mae": 22.138078174430717,
+        "rmse": 28.83634617223165
+      }
+    },
+    "artifacts": [
+      "alibi\\alibi_outliers.json",
+      "alibi\\alibi_drift.json"
+    ]
+  },
+  "nannyml": {
+    "execution_time_sec": 1.1854248046875,
+    "memory_peak_mb": 385.296875,
+    "issues_detected": 20,
+    "coverage_score": 1.0,
+    "checks_performed": {
+      "data_quality": true,
+      "data_drift": true,
+      "outliers": true,
+      "model_performance": true
+    },
+    "check_values": {
+      "data_quality": 0,
+      "data_drift": "2/2 a=10",
+      "outliers": 258,
+      "model_performance": {
+        "mae": 22.138078174430714,
+        "rmse": 28.829266107732213
+      }
+    },
+    "artifacts": [
+      "nannyml\\nannyml_performance.html",
+      "nannyml\\nannyml_drift.html"
+    ]
+  }
+}
